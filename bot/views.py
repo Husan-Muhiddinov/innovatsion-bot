@@ -193,7 +193,7 @@ def received_message(update: Update, context: CallbackContext):
         list3=Department.objects.create(
                 name=msg
             )
-        context.bot.send_message(text=f"Quyidagi bo'lim muvaffaqiyatli hosil qilindi:\n\n{list3}",
+        context.bot.send_message(text=f"Quyidagi bo'lim muvaffaqiyatli hosil qilindi:✅\n\n{list3}",
             chat_id=update.effective_chat.id)
         keyboard=[]
         for i in range(len(depart)):
@@ -209,9 +209,10 @@ def received_message(update: Update, context: CallbackContext):
         print(msg)
         if tahrir == True:
             tahrir = False
-            t=Ids.objects.get(code_id=msg)
-            print(t)
-            pass
+            t=Ids.objects.get(code_id=log.state["name"])
+            t.code_id=msg
+            t.save()
+            update.message.reply_text(f"ID quyidagi ko'rinishida tahrirlandi:\n\n{msg}")
         else:
             try:
                 if '-' in msg and msg:
@@ -223,14 +224,14 @@ def received_message(update: Update, context: CallbackContext):
                                 status_ID=log.state['status_ID'],
                         )
                         ulist.append(str(list1.code_id))
-                    update.message.reply_text(f"Quyidagi ID lar muvaffaqiyatli hosil qilindi:\n\n{ulist}")
+                    update.message.reply_text(f"Quyidagi ID lar muvaffaqiyatli hosil qilindi:👇\n\n{ulist}")
                     
                 elif msg.isnumeric():
                     list2=Ids.objects.create(
                             code_id=msg,
                             status_ID=log.state['status_ID'],
                         )
-                    update.message.reply_text(f"Quyidagi ID muvaffaqiyatli hosil qilindi:\n\n{list2}")
+                    update.message.reply_text(f"Quyidagi ID muvaffaqiyatli hosil qilindi:👇\n\n{list2}")
                 else:
                     update.message.reply_text("Siz no'to'gri ma'lumot jo'natdingiz")
 
@@ -350,7 +351,7 @@ def callback(update, context):
         print(bol)
         id.userr = bol
         id.save()
-        context.bot.send_message(text="ID bo'limga muvaffaqiyatli saqlandi", chat_id=update.effective_chat.id)
+        context.bot.send_message(text="ID bo'limga muvaffaqiyatli saqlandi.✅", chat_id=update.effective_chat.id)
 
 
 
@@ -394,7 +395,7 @@ def callback(update, context):
         idddd=Ids.objects.get(code_id=log.state['raqam'])
         idddd.status='Xato'
         idddd.save()
-        context.bot.send_message(text="ID ro'yhatga muvaffaqiyatli saqlandi", chat_id=update.effective_chat.id)
+        context.bot.send_message(text="ID ro'yhatga muvaffaqiyatli saqlandi.✅", chat_id=update.effective_chat.id)
 
 
 
@@ -402,7 +403,7 @@ def callback(update, context):
         idddd=Ids.objects.get(code_id=log.state['raqam'])
         idddd.status='Imzolanmagan'
         idddd.save()
-        context.bot.send_message(text="ID ro'yhatga muvaffaqiyatli saqlandi", chat_id=update.effective_chat.id)
+        context.bot.send_message(text="ID ro'yhatga muvaffaqiyatli saqlandi.✅", chat_id=update.effective_chat.id)
 
     
 
@@ -410,7 +411,7 @@ def callback(update, context):
         idddd=Ids.objects.get(code_id=log.state['raqam'])
         idddd.status='Foydalanilmagan'
         idddd.save()
-        context.bot.send_message(text="ID ro'yhatga muvaffaqiyatli saqlandi", chat_id=update.effective_chat.id)
+        context.bot.send_message(text="ID ro'yhatga muvaffaqiyatli saqlandi.✅", chat_id=update.effective_chat.id)
 
 
 
