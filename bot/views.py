@@ -13,7 +13,7 @@ from telegram_bot_pagination import InlineKeyboardPaginator
 WELCOME = ["ID yaratish", "ID berish", "Bo'limlar","Ro'yxat"]
 BUTTON1=["Buyruq ID","Xat ID"]
 BUTTON2=["Buyruq ID lar","Xat ID lar"]
-BUTTON3=["Xato","Imzolangan","Foydalanilmagan"]
+BUTTON3=["Xato","Imzolanmagan","Foydalanilmagan"]
 
 
 
@@ -41,10 +41,9 @@ def start(update: Update, context: CallbackContext):
         pass
     log = Log()
     log.user_id = user.id
-    log.state = {'status_idp': False}
-    log.state={'status_buyxat': False}
-    log.state={'status_boolii': False}
-    log.state={'status_bol': False}
+    # , state={'status_idp': False, 'status_buyxat': False, 'status_boolii': False, 'status_bol': False}
+    # log = Log.objects.get_or_create(user_id=user.id)
+    # log.state = {'status_idp': False, 'status_buyxat': False, 'status_boolii': False, 'status_bol': False}
     log.save()
     update.message.reply_text(f"Assalomu alaykum {user.first_name}, botimizga xush kelibsiz", reply_markup=keyboard_buttons(type='welcome'))
 
@@ -99,7 +98,7 @@ def received_message(update: Update, context: CallbackContext):
         keyboard = InlineKeyboardMarkup(buttons) 
         update.message.reply_text(text="Choose an item:", reply_markup=keyboard)
 
-        log.state['status_buyxat']=True
+        # log.state['status_buyxat']=True
 
     
 
@@ -141,12 +140,61 @@ def received_message(update: Update, context: CallbackContext):
                 reply_markup=InlineKeyboardMarkup(inline_keyboard=button1)
             )
         
-        log.state['status_buyxat']=True
+        # log.state['status_buyxat']=True
         
     
 
     elif msg=="Bo'limlar":
         update.message.reply_text(f"Bo'limlar", reply_markup=keyboard_buttons(type='orqaga'))
+        keyboard=[]
+        for i in range(len(depart)):
+            keyboard.append([InlineKeyboardButton(str(depart[i]),callback_data=f"boool_{depart[i]}")])
+        keyboard.append([InlineKeyboardButton("➕ Qo'shish", callback_data="+")])
+        update.message.reply_text(
+                "Quyidagi bo'limlar mavjud:",
+                reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard)
+            )
+        # update.callback_query.edit_message_reply_markup(None)
+        # log.state['status_bol']=True
+    elif msg=="Ro'yxat":
+        update.message.reply_text("Yaratilgan Ro'yhatlarni ko'rish", reply_markup=keyboard_buttons(type='BUTTON3'))
+    elif msg=="Xato":
+        c=Ids.objects.filter(status="Xato")
+        button1=[]
+        for i in range(len(c)):
+            button1.append([InlineKeyboardButton(str(c[i]), callback_data=str(c[i]))])
+        update.message.reply_text(
+                'ID lar',
+                reply_markup=InlineKeyboardMarkup(inline_keyboard=button1)
+            )
+    elif msg=="Imzolanmagan":
+        d=Ids.objects.filter(status="Imzolanmagan")
+        button1=[]
+        for i in range(len(d)):
+            button1.append([InlineKeyboardButton(str(d[i]), callback_data=str(d[i]))])
+        update.message.reply_text(
+                'ID lar',
+                reply_markup=InlineKeyboardMarkup(inline_keyboard=button1)
+            )
+    elif msg=="Foydalanilmagan":
+        e=Ids.objects.filter(status="Foydalanilmagan")
+        button1=[]
+        for i in range(len(e)):
+            button1.append([InlineKeyboardButton(str(e[i]), callback_data=str(e[i]))])
+        update.message.reply_text(
+                'ID lar',
+                reply_markup=InlineKeyboardMarkup(inline_keyboard=button1)
+            )
+    
+
+
+    elif yangi == True:
+        yangi = False
+        list3=Department.objects.create(
+                name=msg
+            )
+        context.bot.send_message(text=f"Quyidagi bo'lim muvaffaqiyatli hosil qilindi:\n\n{list3}",
+            chat_id=update.effective_chat.id)
         keyboard=[]
         for i in range(len(depart)):
             keyboard.append([InlineKeyboardButton(str(depart[i]),callback_data=str(depart[i]))])
@@ -155,15 +203,14 @@ def received_message(update: Update, context: CallbackContext):
                 "Quyidagi bo'limlar mavjud:",
                 reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard)
             )
-        # update.callback_query.edit_message_reply_markup(None)
-        log.state['status_bol']=True
+
         
     elif (msg not in ["⬅️Orqaga", "Buyruq ID", "Xat ID", "ID berish"] and log.state['state'] == 1) or (tahrir == True):
         print(msg)
         if tahrir == True:
             tahrir = False
-            # t=Ids.objects.filter(code_id=msg)
-            # print(t)
+            t=Ids.objects.get(code_id=msg)
+            print(t)
             pass
         else:
             try:
@@ -195,56 +242,14 @@ def received_message(update: Update, context: CallbackContext):
                 print (e)
                 update.message.reply_text("ID xato formatda kiritildi, quyidagi shakllardan birida kiriting:\n\n11111\n\n11110")
         
-    elif msg=="Ro'yxat":
-        update.message.reply_text("Yaratilgan Ro'yhatlarni ko'rish", reply_markup=keyboard_buttons(type='BUTTON3'))
+    
 
-
-    elif msg=="Xato":
-        c=Ids.objects.filter(status="Xato")
-        button1=[]
-        for i in range(len(c)):
-            button1.append([InlineKeyboardButton(str(c[i]), callback_data=str(c[i]))])
-        update.message.reply_text(
-                'ID lar',
-                reply_markup=InlineKeyboardMarkup(inline_keyboard=button1)
-            )
-    elif msg=="Imzolanmagan":
-        d=Ids.objects.filter(status="Imzolanmagan")
-        button1=[]
-        for i in range(len(d)):
-            button1.append([InlineKeyboardButton(str(d[i]), callback_data=str(d[i]))])
-        update.message.reply_text(
-                'ID lar',
-                reply_markup=InlineKeyboardMarkup(inline_keyboard=button1)
-            )
-    elif msg=="Foydalanilmagan":
-        e=Ids.objects.filter(status="Foydalanilmagan")
-        button1=[]
-        for i in range(len(e)):
-            button1.append([InlineKeyboardButton(str(e[i]), callback_data=str(e[i]))])
-        update.message.reply_text(
-                'ID lar',
-                reply_markup=InlineKeyboardMarkup(inline_keyboard=button1)
-            )
+    
         
 
 
 
-    elif yangi == True:
-        yangi = False
-        list3=Department.objects.create(
-                name=msg
-            )
-        context.bot.send_message(text=f"Quyidagi bo'lim muvaffaqiyatli hosil qilindi:\n\n{list3}",
-            chat_id=update.effective_chat.id)
-        keyboard=[]
-        for i in range(len(depart)):
-            keyboard.append([InlineKeyboardButton(str(depart[i]),callback_data=str(depart[i]))])
-        keyboard.append([InlineKeyboardButton("➕ Qo'shish", callback_data="+")])
-        update.message.reply_text(
-                "Quyidagi bo'limlar mavjud:",
-                reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard)
-            )
+    
         
 
     # if msg=="➕ Qo'shish":
@@ -311,12 +316,13 @@ def callback(update, context):
     if msg == '+':
         yangi = True
         context.bot.send_message(text="Yangi bo'lim nomini kiriting", chat_id=update.effective_chat.id)
-    elif msg.isdigit() and log.state['status_buyxat']==True:
+
+
+    elif msg.isdigit():
         a=[str(i) for i in Ids.objects.filter()]
         print(a)
         bolim = a.index(msg)
         log.state["name"]=msg
-        log.state['status_buyxat']=False
         keyboard = [[InlineKeyboardButton('Tahrirlash', callback_data='tahrir'), InlineKeyboardButton('O\'chirish', callback_data='ochir'), InlineKeyboardButton('Bo\'lim', callback_data='bol')]]
         context.bot.send_message(text=f"{msg}", chat_id=update.effective_chat.id, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard))
     elif msg=="tahrir":
@@ -324,24 +330,22 @@ def callback(update, context):
         tahrir = True
         context.bot.send_message(text="Tahrirlang", chat_id=update.effective_chat.id)
     elif msg=='ochir':
-        b = Ids.objects.filter(status_ID='Buyruq_ID')
+        b = Ids.objects.filter()
         b[bolim].delete()
     elif msg=="bol":
         j=Department.objects.all()
         keyboaard=[]
         for i in range(len(j)):
-            keyboaard.append([InlineKeyboardButton(str(j[i]),callback_data=str(j[i]))])
+            keyboaard.append([InlineKeyboardButton(str(j[i]),callback_data=f"boltan_{j[i]}")])
         context.bot.send_message(
                 text="Bo'limlardan birini tanlang:", chat_id=update.effective_chat.id,
                 reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboaard)
             )
-        log.state['status_idp']=True
         
-        
-    elif msg and log.state['status_idp'] == True:
+    elif msg and msg.startswith('boltan_'):
+        msgg=str(msg.split('_')[1])
         id = Ids.objects.get(code_id=log.state['name'])
-        bol = Department.objects.get(name=msg)
-        log.state['status_idp']=False
+        bol = Department.objects.get(name=msgg)
         print(id)
         print(bol)
         id.userr = bol
@@ -349,26 +353,84 @@ def callback(update, context):
         context.bot.send_message(text="ID bo'limga muvaffaqiyatli saqlandi", chat_id=update.effective_chat.id)
 
 
-    elif msg and log.state['status_bol']:
-        bol = Department.objects.get(name=msg)
-        q=Ids.objects.filter(userr=bol)
-        log.state['status_bol']=False
+
+    elif msg and msg.startswith('boool_'):
+        msgg=str(msg.split('_')[1])
+        q=Ids.objects.filter(userr__name=msgg)
         button1=[]
         for i in range(len(q)):
-            button1.append([InlineKeyboardButton(str(q[i]), callback_data=str(q[i]))])
+            button1.append([InlineKeyboardButton(str(q[i]),callback_data=f"butt_{q[i]}")])
         a=context.bot.send_message(
                 text="Bo'limga tegishli ID lar", chat_id=update.effective_chat.id,
                 reply_markup=InlineKeyboardMarkup(inline_keyboard=button1)
             )
-        log.state['status_boolii']=True
-    elif msg.isdigit() and log.state['status_boolii']:
-        b=[str(i) for i in Ids.objects.filter(status_ID='Buyruq_ID')]
-        print(b)
-        bolim = b.index(msg)
-        log.state['status_boolii']=False
+
+
+    elif msg and msg.startswith('butt_'):
+        print(msg)
+        mssg=str(msg.split('_')[1])
+        log.state["raqam"]=mssg
+        b=[str(i) for i in Ids.objects.filter()]
+        bolim = b.index(mssg)
         keyboard = [[InlineKeyboardButton('Status', callback_data='stat')]]
-        context.bot.send_message(text=f"{msg}", chat_id=update.effective_chat.id, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard))
+        context.bot.send_message(text=f"{mssg}", chat_id=update.effective_chat.id, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard))
+
+    
+
+    elif msg=="stat":
+        
+        keyboard = [[InlineKeyboardButton('Xato', callback_data='xat'), InlineKeyboardButton('Imzolanmagan', callback_data='imzo'), InlineKeyboardButton('Foydalanilmagan', callback_data='foyda')]]
+        context.bot.send_message(text=f"{log.state['raqam']} ni qaysi ro'yhatga qo'shmoqchisiz?", chat_id=update.effective_chat.id, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard))
+        # log.state['roy']=msg
+        # print(log.state['roy'])
+
+        # idddd=Ids.objects.get(code_id=log.state['raqam'])
+        # idddd.status=msg
+        # idddd.save()
+        # context.bot.send_message(text="ID ro'yhatga muvaffaqiyatli saqlandi", chat_id=update.effective_chat.id)
+
+
+    elif msg=='xat':
+        idddd=Ids.objects.get(code_id=log.state['raqam'])
+        idddd.status='Xato'
+        idddd.save()
+        context.bot.send_message(text="ID ro'yhatga muvaffaqiyatli saqlandi", chat_id=update.effective_chat.id)
+
+
+
+    elif msg=='imzo':
+        idddd=Ids.objects.get(code_id=log.state['raqam'])
+        idddd.status='Imzolanmagan'
+        idddd.save()
+        context.bot.send_message(text="ID ro'yhatga muvaffaqiyatli saqlandi", chat_id=update.effective_chat.id)
+
+    
+
+    elif msg=='foyda':
+        idddd=Ids.objects.get(code_id=log.state['raqam'])
+        idddd.status='Foydalanilmagan'
+        idddd.save()
+        context.bot.send_message(text="ID ro'yhatga muvaffaqiyatli saqlandi", chat_id=update.effective_chat.id)
+
+
+
+        # print(log.state['roy'])
+        # idddd=Ids.objects.get(code_id=log.state['raqam'])
+        # idddd.status=log.state['roy']
+        # idddd.save()
+        # context.bot.send_message(text="ID ro'yhatga muvaffaqiyatli saqlandi", chat_id=update.effective_chat.id)
+        
             
+    # elif msg and msg.startswith('boltan_'):
+    #     msgg=str(msg.split('_')[1])
+    #     id = Ids.objects.get(code_id=log.state['raqam'])
+    #     bol = Department.objects.get(name=msgg)
+    #     print(id)
+    #     print(bol)
+    #     id.userr = bol
+    #     id.save()
+    #     context.bot.send_message(text="ID bo'limga muvaffaqiyatli saqlandi", chat_id=update.effective_chat.id)
+
         # use = [i.name for i in Department.objects.all()]
         # if msg in use:
         # # if msg!='tan':
@@ -386,7 +448,7 @@ def callback(update, context):
         #     save=Department.objects.create(
         #         name=msg
         #     )
-        #     use = [i.name for i in Department.objects.all()]
+        #     use = [i.name for i in Department.objects.all()
         #     if msg in use:
         #        save.save()
         #     context.bot.send_message(text="ID bo'limga muvaffaqiyatli saqlandi", chat_id=update.effective_chat.id)
@@ -394,8 +456,11 @@ def callback(update, context):
 
 
 
+
     
-        
+    elif msg.startswith('next_'):
+        pass
+
 
 
 
