@@ -73,6 +73,32 @@ def send_items(update, context, page):
     context.bot.send_message(text=f'Page {page}:', chat_id=update.effective_chat.id, reply_markup=reply_markup)
 
 
+def send_itemss(update, context, page):
+    a=Ids.objects.filter(status_ID='Xat_ID')
+    # print(a)
+# Calculate the start and end index of the items for the current page
+    start_index = (page - 1) * 10
+    end_index = start_index + 10
+    ITEMS=a[start_index:end_index]
+    print(ITEMS)
+    buttons = []
+    for i in range(len(ITEMS)):
+        button = InlineKeyboardButton(str(ITEMS[i]), callback_data=str(ITEMS[i]))
+        buttons.append([button])
+
+    # Add navigation buttons to the bottom of the keyboard
+    prev_button = InlineKeyboardButton('Prev', callback_data=f'prev_{page}')
+    next_button = InlineKeyboardButton('Next', callback_data=f'next_{page}')
+    buttons.append([prev_button, next_button])
+
+    # Create the InlineKeyboardMarkup with the buttons
+    reply_markup = InlineKeyboardMarkup(buttons)
+
+
+    # Send the message with the current page of items and the navigation buttons
+    context.bot.send_message(text=f'Page {page}:', chat_id=update.effective_chat.id, reply_markup=reply_markup)
+
+
 global yangi, tahrir
 yangi = False
 tahrir = False
@@ -156,15 +182,15 @@ def received_message(update: Update, context: CallbackContext):
         #     #     parse_mode='Markdown'
         #     # )
     elif msg=="Xat ID lar":
-        # send_items(update, context, page=1)
-        a=Ids.objects.filter(status_ID='Xat_ID')
-        button1=[]
-        for i in range(len(a)):
-            button1.append([InlineKeyboardButton(str(a[i]), callback_data=str(a[i]))])
-        update.message.reply_text(
-                'Xat ID lar:',
-                reply_markup=InlineKeyboardMarkup(inline_keyboard=button1)
-            )
+        send_itemss(update, context, page=1)
+        # a=Ids.objects.filter(status_ID='Xat_ID')
+        # button1=[]
+        # for i in range(len(a)):
+        #     button1.append([InlineKeyboardButton(str(a[i]), callback_data=str(a[i]))])
+        # update.message.reply_text(
+        #         'Xat ID lar:',
+        #         reply_markup=InlineKeyboardMarkup(inline_keyboard=button1)
+        #     )
         
         
     
@@ -511,6 +537,13 @@ def callback(update, context):
     elif msg.startswith('next'):
         # Send the next page of items
         send_items(update, context, page=int(msg[msg.find('_')+1:])+1)
+
+    elif msg.startswith('prev'):
+        # Send the previous page of items
+        send_itemss(update, context, page=int(msg[msg.find('_')+1:])-1)
+    elif msg.startswith('next'):
+        # Send the next page of items
+        send_itemss(update, context, page=int(msg[msg.find('_')+1:])+1)
 
 
 
