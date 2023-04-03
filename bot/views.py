@@ -90,8 +90,8 @@ def send_itemss(update, context, pages):
         buttons.append([button])
 
     # Add navigation buttons to the bottom of the keyboard
-    prevv_button = InlineKeyboardButton('Prev', callback_data=f'prevv_{pages}')
-    nextt_button = InlineKeyboardButton('Next', callback_data=f'nextt_{pages}')
+    prevv_button = InlineKeyboardButton('Orqaga', callback_data=f'orqa_{pages}')
+    nextt_button = InlineKeyboardButton('Oldinga', callback_data=f'oldin_{pages}')
     buttons.append([prevv_button, nextt_button])
 
     # Create the InlineKeyboardMarkup with the buttons
@@ -511,10 +511,10 @@ def callback(update, context):
         # Send the next page of items
         send_items(update, context, page=int(msg[msg.find('_')+1:])+1)
 
-    elif msg.startswith('prevv'):
+    elif msg.startswith('orqa'):
         # Send the previous page of items
         send_itemss(update, context, pages=int(msg[msg.find('_')+1:])-1)
-    elif msg.startswith('nextt'):
+    elif msg.startswith('oldin'):
         # Send the next page of items
         send_itemss(update, context, pages=int(msg[msg.find('_')+1:])+1)
 
