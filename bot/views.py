@@ -213,17 +213,13 @@ def received_message(update: Update, context: CallbackContext):
         p=Department.objects.all()
         list123=[]
         for i in p:
-            # print(i)
             c=Ids.objects.filter(status="Xato").filter(userr__name=i)
-            # print(c)
             k=len(c)
             a=f"{i} bo'limida : {k} ta"
             list123.append(a)
-        # print(list123)
-        update.message.reply_text(f"Xatolar: \n\n{l}" for l in list123)
+        update.message.reply_text(f"Xatolar: \n\n{list123}")
 
 
-            # print(a)
         # for i in c:
         # button1=[]
         # for i in range(len(c)):
@@ -233,23 +229,26 @@ def received_message(update: Update, context: CallbackContext):
         #         reply_markup=InlineKeyboardMarkup(inline_keyboard=button1)
         #     )
     elif msg=="Imzolanmagan":
-        d=Ids.objects.filter(status="Imzolanmagan")
-        button1=[]
-        for i in range(len(d)):
-            button1.append([InlineKeyboardButton(str(d[i]), callback_data=str(d[i]))])
-        update.message.reply_text(
-                'ID lar',
-                reply_markup=InlineKeyboardMarkup(inline_keyboard=button1)
-            )
+        p=Department.objects.all()
+        list123=[]
+        for i in p:
+            c=Ids.objects.filter(status="Imzolanmagan").filter(userr__name=i)
+            k=len(c)
+            a=f"{i} bo'limida : {k} ta"
+            list123.append(a)
+        update.message.reply_text(f"Imzolanmagan: \n\n{list123}")
+
+        
     elif msg=="Foydalanilmagan":
-        e=Ids.objects.filter(status="Foydalanilmagan")
-        button1=[]
-        for i in range(len(e)):
-            button1.append([InlineKeyboardButton(str(e[i]), callback_data=str(e[i]))])
-        update.message.reply_text(
-                'ID lar',
-                reply_markup=InlineKeyboardMarkup(inline_keyboard=button1)
-            )
+        p=Department.objects.all()
+        list123=[]
+        for i in p:
+            c=Ids.objects.filter(status="Foydalanilmagan").filter(userr__name=i)
+            k=len(c)
+            a=f"{i} bo'limida : {k} ta"
+            list123.append(a)
+        update.message.reply_text(f"Foydalanilmagan: \n\n{list123}")
+        
      
 
 
@@ -268,17 +267,17 @@ def received_message(update: Update, context: CallbackContext):
                 "Quyidagi bo'limlar mavjud:",
                 reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard)
             )
-
         
-    elif (msg not in ["⬅️Orqaga", "Buyruq ID", "Xat ID", "ID berish"] and log.state['state'] == 1) or (tahrir == True):
-        print(msg)
-        if tahrir == True:
+    elif msg.isdigit() and log.state["state"]==255:
             tahrir = False
             t=Ids.objects.get(code_id=log.state["name"])
             t.code_id=msg
             t.save()
             update.message.reply_text(f"ID quyidagi ko'rinishida tahrirlandi:\n\n{msg}")
-        else:
+
+
+        
+    elif (msg not in ["⬅️Orqaga", "Buyruq ID", "Xat ID", "ID berish"] and log.state['state'] == 1):
             try:
                 if '-' in msg and msg:
                     ulist = []
@@ -305,8 +304,9 @@ def received_message(update: Update, context: CallbackContext):
                     update.message.reply_text("Bu ID bazada mavjud")
 
             except Exception as e:
-                print (e)
+                # print (e)
                 update.message.reply_text("ID xato formatda kiritildi, quyidagi shakllardan birida kiriting:\n\n11111\n\n11110")
+
         
     
 
@@ -393,9 +393,10 @@ def callback(update, context):
         keyboard = [[InlineKeyboardButton('Tahrirlash', callback_data='tahrir'), InlineKeyboardButton('O\'chirish', callback_data='ochir'), InlineKeyboardButton('Bo\'lim', callback_data='bol')]]
         o=context.bot.send_message(text=f"{msg}", chat_id=update.effective_chat.id, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard))
     elif msg=="tahrir":
-        log.state["state"]=1
-        tahrir = True
+        log.state["state"]=255
+        # tahrir = True
         context.bot.send_message(text="Tahrirlang", chat_id=update.effective_chat.id)
+    
     elif msg=='ochir':
         b = Ids.objects.filter()
         b[bolim].delete()
