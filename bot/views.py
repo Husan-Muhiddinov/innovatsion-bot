@@ -79,19 +79,20 @@ def send_itemss(update, context, pages):
     b=Ids.objects.filter(status_ID='Xat_ID')
     print(b)
 # Calculate the start and end index of the items for the current page
-    start_index = (pages - 1) * 10
-    end_index = start_index + 10
-    ITEMSS=b[start_index:end_index]
+    start_indexx = (pages - 1) * 10
+    end_indexx = start_indexx + 10
+    ITEMSS=b[start_indexx:end_indexx]
     print(ITEMSS)
     buttons = []
-    for i in range(len(ITEMSS)):
-        button = InlineKeyboardButton(str(ITEMSS[i]), callback_data=str(ITEMSS[i]))
+
+    for j in range(len(ITEMSS)):
+        button = InlineKeyboardButton(str(ITEMSS[j]), callback_data=str(ITEMSS[j]))
         buttons.append([button])
 
     # Add navigation buttons to the bottom of the keyboard
-    prev_button = InlineKeyboardButton('Prev', callback_data=f'prevv_{pages}')
-    next_button = InlineKeyboardButton('Next', callback_data=f'nextt_{pages}')
-    buttons.append([prev_button, next_button])
+    prevv_button = InlineKeyboardButton('Prev', callback_data=f'prevv_{pages}')
+    nextt_button = InlineKeyboardButton('Next', callback_data=f'nextt_{pages}')
+    buttons.append([prevv_button, nextt_button])
 
     # Create the InlineKeyboardMarkup with the buttons
     reply_markup = InlineKeyboardMarkup(buttons)
@@ -151,38 +152,7 @@ def received_message(update: Update, context: CallbackContext):
         # keyboard = InlineKeyboardMarkup(buttons) 
         # update.message.reply_text(text="Buyruq ID lar:", reply_markup=keyboard)
 
-        # log.state['status_buyxat']=True
-
-    
-
-        # button=[]
-        # for i in range(len(a)):
-        #     button.append([InlineKeyboardButton(str(a[i]), callback_data=str(a[i]))])
-        # update.message.reply_text(
-        #         'ID lar',
-        #         reply_markup=InlineKeyboardMarkup(inline_keyboard=button)
-        #     )
-        
-
-
-        # paginator = InlineKeyboardPaginator(
-        #         10,
-        #         current_page=1,
-        #         data_pattern='character#{page}'
-        #     )
-
-        # paginator.add_before(
-        #         InlineKeyboardButton('Orqaga', callback_data='like#{}'.format(1)),
-        #         InlineKeyboardButton('Oldinga', callback_data='dislike#{}'.format(1))
-        #     )
-        # paginator.add_after(InlineKeyboardButton('Go back', callback_data='back'))
-
-        #     # bot.send_message(
-        #     #     message.chat.id,
-        #     #     character_pages[10-1],
-        #     #     reply_markup=paginator.markup,
-        #     #     parse_mode='Markdown'
-        #     # )
+ 
     elif msg=="Xat ID lar":
         send_itemss(update, context, pages=1)
         # a=Ids.objects.filter(status_ID='Xat_ID')
