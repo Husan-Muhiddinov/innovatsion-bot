@@ -44,7 +44,9 @@ def start(update: Update, context: CallbackContext):
     # , state={'status_idp': False, 'status_buyxat': False, 'status_boolii': False, 'status_bol': False}
     # log = Log.objects.get_or_create(user_id=user.id)
     # log.state = {'status_idp': False, 'status_buyxat': False, 'status_boolii': False, 'status_bol': False}
-    log.save()
+    userrs=[i.user_id for i in Log.objects.all()]
+    if user.id not in userrs:
+        log.save()
     update.message.reply_text(f"Assalomu alaykum {user.first_name}, botimizga xush kelibsiz", reply_markup=keyboard_buttons(type='welcome'))
 
 def send_items(update, context, page):
@@ -73,22 +75,22 @@ def send_items(update, context, page):
     context.bot.send_message(text=f'Page {page}:', chat_id=update.effective_chat.id, reply_markup=reply_markup)
 
 
-def send_itemss(update, context, page):
-    a=Ids.objects.filter(status_ID='Xat_ID')
-    # print(a)
+def send_itemss(update, context, pages):
+    b=Ids.objects.filter(status_ID='Xat_ID')
+    print(b)
 # Calculate the start and end index of the items for the current page
-    start_index = (page - 1) * 10
+    start_index = (pages - 1) * 10
     end_index = start_index + 10
-    ITEMS=a[start_index:end_index]
-    print(ITEMS)
+    ITEMSS=b[start_index:end_index]
+    print(ITEMSS)
     buttons = []
-    for i in range(len(ITEMS)):
-        button = InlineKeyboardButton(str(ITEMS[i]), callback_data=str(ITEMS[i]))
+    for i in range(len(ITEMSS)):
+        button = InlineKeyboardButton(str(ITEMSS[i]), callback_data=str(ITEMSS[i]))
         buttons.append([button])
 
     # Add navigation buttons to the bottom of the keyboard
-    prev_button = InlineKeyboardButton('Prev', callback_data=f'prev_{page}')
-    next_button = InlineKeyboardButton('Next', callback_data=f'next_{page}')
+    prev_button = InlineKeyboardButton('Prev', callback_data=f'prevv_{pages}')
+    next_button = InlineKeyboardButton('Next', callback_data=f'nextt_{pages}')
     buttons.append([prev_button, next_button])
 
     # Create the InlineKeyboardMarkup with the buttons
@@ -96,7 +98,7 @@ def send_itemss(update, context, page):
 
 
     # Send the message with the current page of items and the navigation buttons
-    context.bot.send_message(text=f'Page {page}:', chat_id=update.effective_chat.id, reply_markup=reply_markup)
+    context.bot.send_message(text=f'Page {pages}:', chat_id=update.effective_chat.id, reply_markup=reply_markup)
 
 
 global yangi, tahrir
@@ -182,7 +184,7 @@ def received_message(update: Update, context: CallbackContext):
         #     #     parse_mode='Markdown'
         #     # )
     elif msg=="Xat ID lar":
-        send_itemss(update, context, page=1)
+        send_itemss(update, context, pages=1)
         # a=Ids.objects.filter(status_ID='Xat_ID')
         # button1=[]
         # for i in range(len(a)):
@@ -539,12 +541,12 @@ def callback(update, context):
         # Send the next page of items
         send_items(update, context, page=int(msg[msg.find('_')+1:])+1)
 
-    elif msg.startswith('prev'):
+    elif msg.startswith('prevv'):
         # Send the previous page of items
-        send_itemss(update, context, page=int(msg[msg.find('_')+1:])-1)
-    elif msg.startswith('next'):
+        send_itemss(update, context, pages=int(msg[msg.find('_')+1:])-1)
+    elif msg.startswith('nextt'):
         # Send the next page of items
-        send_itemss(update, context, page=int(msg[msg.find('_')+1:])+1)
+        send_itemss(update, context, pages=int(msg[msg.find('_')+1:])+1)
 
 
 
