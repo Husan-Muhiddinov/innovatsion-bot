@@ -8,6 +8,7 @@ class UserInformation(models.Model):
     username = models.CharField(max_length=256, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    user_status=models.BooleanField(default=False, null=True)
 
     def __str__(self):
         return str(self.first_name)+" " + str(self.last_name)

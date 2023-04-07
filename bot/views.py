@@ -50,12 +50,16 @@ def start(update: Update, context: CallbackContext):
     update.message.reply_text(f"Assalomu alaykum {user.first_name}, botimizga xush kelibsiz", reply_markup=keyboard_buttons(type='welcome'))
 
 def send_items(update, context, page):
+    global ff
+    # query=update.callback_query
     a=Ids.objects.filter(status_ID='Buyruq_ID')
     # print(a)
 # Calculate the start and end index of the items for the current page
     start_index = (page - 1) * 10
     end_index = start_index + 10
     ITEMS=a[start_index:end_index]
+    # if len(ITEMS) == 0:
+
     print(ITEMS)
     buttons = []
     for i in range(len(ITEMS)):
@@ -72,17 +76,18 @@ def send_items(update, context, page):
 
 
     # Send the message with the current page of items and the navigation buttons
-    context.bot.send_message(text=f'Page {page}:', chat_id=update.effective_chat.id, reply_markup=reply_markup)
+    ff=context.bot.send_message(text=f'Page {page}:', chat_id=update.effective_chat.id, reply_markup=reply_markup)
+    # query.edit_message_reply_markup(text=f'Page {page}:', chat_id=update.effective_chat.id, reply_markup=reply_markup)
 
 
 def send_itemss(update, context, pages):
+    global ff
     b=Ids.objects.filter(status_ID='Xat_ID')
-    print(b)
+    # print(b)
 # Calculate the start and end index of the items for the current page
     start_indexx = (pages - 1) * 10
     end_indexx = start_indexx + 10
     ITEMSS=b[start_indexx:end_indexx]
-    print(ITEMSS)
     buttons = []
 
     for j in range(len(ITEMSS)):
@@ -99,7 +104,7 @@ def send_itemss(update, context, pages):
 
 
     # Send the message with the current page of items and the navigation buttons
-    context.bot.send_message(text=f'Page {pages}:', chat_id=update.effective_chat.id, reply_markup=reply_markup)
+    ff=context.bot.send_message(text=f'Page {pages}:', chat_id=update.effective_chat.id, reply_markup=reply_markup)
 
 
 global yangi, tahrir
@@ -115,7 +120,8 @@ def received_message(update: Update, context: CallbackContext):
     
     logi=Ids.objects.all()
     depart=Department.objects.all()
-    if msg=="ID yaratish":
+    userstat=UserInformation.objects.all()
+    if msg=="ID yaratish" and userstat.user_status==True:
         log.state = {'state': 0}
         update.message.reply_text("ID lar yaratish", reply_markup=keyboard_buttons(type='BUTTON1'))
     elif msg=="Buyruq ID" and log.state['state'] == 0:
@@ -189,7 +195,8 @@ def received_message(update: Update, context: CallbackContext):
             k=len(c)
             a=f"{i} bo'limida : {k} ta"
             list123.append(a)
-        update.message.reply_text(f"Xatolar: \n\n{list123}")
+            result = '\n'.join(list123)
+        update.message.reply_text(f"Xatolar: \n\n{result}")
 
 
         # for i in c:
@@ -208,7 +215,8 @@ def received_message(update: Update, context: CallbackContext):
             k=len(c)
             a=f"{i} bo'limida : {k} ta"
             list123.append(a)
-        update.message.reply_text(f"Imzolanmagan: \n\n{list123}")
+            result = '\n'.join(list123)
+        update.message.reply_text(f"Imzolanmagan: \n\n{result}")
 
         
     elif msg=="Foydalanilmagan":
@@ -219,7 +227,8 @@ def received_message(update: Update, context: CallbackContext):
             k=len(c)
             a=f"{i} bo'limida : {k} ta"
             list123.append(a)
-        update.message.reply_text(f"Foydalanilmagan: \n\n{list123}")
+            result = '\n'.join(list123)
+        update.message.reply_text(f"Foydalanilmagan: \n\n{result}")
         
      
 
@@ -244,8 +253,16 @@ def received_message(update: Update, context: CallbackContext):
             tahrir = False
             t=Ids.objects.get(code_id=log.state["name"])
             t.code_id=msg
-            t.save()
-            update.message.reply_text(f"ID quyidagi ko'rinishida tahrirlandi:\n\n{msg}")
+            tah=[i.user_id for i in Ids.objects.all()]
+            try:
+              if t not in tah:
+                t.save()
+                update.message.reply_text(f"ID quyidagi ko'rinishida tahrirlandi:\n\n{msg}")
+            except:
+              update.message.reply_text(f"Bu ID bazada mavjud:\n\n{msg}")
+
+
+              
 
 
         
@@ -347,9 +364,10 @@ def received_message(update: Update, context: CallbackContext):
 #     msg.edit_text("Seriously, you're on your own, kiddo.")
 
 def callback(update, context):
+    global ff
     user = update.effective_user
     log=Log.objects.filter(user_id=user.id).first()
-    global yangi, bolim, o
+    global yangi, bolim, o, aa
     msg = update.callback_query.data
     if msg == '+':
         yangi = True
@@ -357,6 +375,7 @@ def callback(update, context):
 
 
     elif msg.isdigit():
+        context.bot.delete_message(chat_id=update.effective_chat.id, message_id=ff.message_id)
         print(msg)
         a=[str(i) for i in Ids.objects.filter()]
         # print(a)
@@ -364,6 +383,8 @@ def callback(update, context):
         log.state["name"]=msg
         keyboard = [[InlineKeyboardButton('Tahrirlash', callback_data='tahrir'), InlineKeyboardButton('O\'chirish', callback_data='ochir'), InlineKeyboardButton('Bo\'lim', callback_data='bol')]]
         o=context.bot.send_message(text=f"{msg}", chat_id=update.effective_chat.id, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard))
+    
+
     elif msg=="tahrir":
         log.state["state"]=255
         # tahrir = True
@@ -398,12 +419,17 @@ def callback(update, context):
 
 
     elif msg and msg.startswith('boool_'):
+        try:
+            context.bot.delete_message(chat_id=update.effective_chat.id, message_id=aa.message_id)
+        except:
+            pass
         msgg=str(msg.split('_')[1])
+        print(msgg)
         q=Ids.objects.filter(userr__name=msgg)
         button1=[]
         for i in range(len(q)):
             button1.append([InlineKeyboardButton(str(q[i]),callback_data=f"butt_{q[i]}")])
-        a=context.bot.send_message(
+        aa=context.bot.send_message(
                 text=f"{msgg} bo'limiga tegishli ID lar:", chat_id=update.effective_chat.id,
                 reply_markup=InlineKeyboardMarkup(inline_keyboard=button1)
             )
@@ -419,7 +445,7 @@ def callback(update, context):
         bolim = b.index(mssg)
         keyboard = [[InlineKeyboardButton('Status', callback_data='stat')]]
         context.bot.send_message(text=f"{mssg}", chat_id=update.effective_chat.id, reply_markup=InlineKeyboardMarkup(inline_keyboard=keyboard))
-        # context.bot.delete_message(chat_id=update.effective_chat.id, message_id=d.message_id)
+        context.bot.delete_message(chat_id=update.effective_chat.id, message_id=aa.message_id)
 
     
 
@@ -506,16 +532,20 @@ def callback(update, context):
     
     elif msg.startswith('prev'):
         # Send the previous page of items
+        context.bot.delete_message(chat_id=update.effective_chat.id, message_id=ff.message_id)
         send_items(update, context, page=int(msg[msg.find('_')+1:])-1)
     elif msg.startswith('next'):
         # Send the next page of items
+        context.bot.delete_message(chat_id=update.effective_chat.id, message_id=ff.message_id)
         send_items(update, context, page=int(msg[msg.find('_')+1:])+1)
 
     elif msg.startswith('orqa'):
         # Send the previous page of items
+        context.bot.delete_message(chat_id=update.effective_chat.id, message_id=ff.message_id)
         send_itemss(update, context, pages=int(msg[msg.find('_')+1:])-1)
     elif msg.startswith('oldin'):
         # Send the next page of items
+        context.bot.delete_message(chat_id=update.effective_chat.id, message_id=ff.message_id)
         send_itemss(update, context, pages=int(msg[msg.find('_')+1:])+1)
 
 
