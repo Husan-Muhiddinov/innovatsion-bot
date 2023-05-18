@@ -47,7 +47,14 @@ def start(update: Update, context: CallbackContext):
     userrs=[i.user_id for i in Log.objects.all()]
     if user.id not in userrs:
         log.save()
-    update.message.reply_text(f"Assalomu alaykum {user.first_name}, botimizga xush kelibsiz", reply_markup=keyboard_buttons(type='welcome'))
+    userstat=UserInformation.objects.get(username=user.username)
+    try:
+        if userstat.user_status==True:
+            update.message.reply_text(f"Assalomu alaykum {user.first_name}, botimizga xush kelibsiz", reply_markup=keyboard_buttons(type='welcome'))
+    except:
+        update.message.reply_text(f"Assalomu alaykum {user.first_name}, botimizga xush kelibsiz")
+
+
 
 def send_items(update, context, page):
     global ff
@@ -120,7 +127,7 @@ def received_message(update: Update, context: CallbackContext):
     
     logi=Ids.objects.all()
     depart=Department.objects.all()
-    userstat=UserInformation.objects.all()
+    userstat=UserInformation.objects.get(username=user.username)
     if msg=="ID yaratish" and userstat.user_status==True:
         log.state = {'state': 0}
         update.message.reply_text("ID lar yaratish", reply_markup=keyboard_buttons(type='BUTTON1'))
@@ -186,7 +193,7 @@ def received_message(update: Update, context: CallbackContext):
         # update.callback_query.edit_message_reply_markup(None)
         # log.state['status_bol']=True
     elif msg=="Ro'yxat":
-        update.message.reply_text("Yaratilgan Ro'yhatlarni ko'rish", reply_markup=keyboard_buttons(type='BUTTON3'))
+        update.message.reply_text("Yaratilgan Ro'yxatlarni ko'rish", reply_markup=keyboard_buttons(type='BUTTON3'))
     elif msg=="Xato":
         p=Department.objects.all()
         list123=[]
